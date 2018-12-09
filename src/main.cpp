@@ -3,6 +3,11 @@
 
 SoftwareSerial Bluetooth(2, 3);
 
+String inputString = "";         // a String to hold incoming data
+bool stringComplete = false;  // whether the string is complete
+
+String message = "";
+
 int val;
 int LED = 13;
 
@@ -57,13 +62,17 @@ void goRight(int speed){
 } */
 
 void go2(int left, int right, int dir, String time){
+
+  //Serial.println("go2 "+time);
+  //Serial.flush();
   int A_1A_speed = 0, A_1B_speed = 0, B_1A_speed = 0, B_1B_speed = 0;
 
   
 
   if (left == 0 && right == 0) //stop
   {
-    Serial.println("STOP");
+    //Serial.println("STOP");
+    digitalWrite(LED_BUILTIN, HIGH);
     analogWrite(A_1A, 0);
     analogWrite(B_1A, 0);
     analogWrite(A_1B, 0);
@@ -72,6 +81,8 @@ void go2(int left, int right, int dir, String time){
 
   else if (dir == 0) //go to rear
   {
+      digitalWrite(LED_BUILTIN, LOW);
+
     //right speed
     if (right == 0) 
     {
@@ -95,6 +106,8 @@ void go2(int left, int right, int dir, String time){
   } 
     else //go to forvard
   {
+      digitalWrite(LED_BUILTIN, LOW);
+
     //right speed
     A_1A_speed = map(right, 0, 100, 0, 255);
     //left speed
@@ -104,7 +117,13 @@ void go2(int left, int right, int dir, String time){
     analogWrite(A_1B, 0);
     analogWrite(B_1B, 0);
   }
-  Serial.println("$A1_A: " + String(A_1A_speed) + ", A1_B: " + String(A_1B_speed)+", B1_A: " + String(B_1A_speed)+", B1_B: " + String(B_1B_speed)+","+time);
+  //Serial.println("$A1_A: " + String(A_1A_speed) + ", A1_B: " + String(A_1B_speed)+", B1_A: " + String(B_1A_speed)+", B1_B: " + String(B_1B_speed)+","+time);
+  //Serial.flush();
+
+  //message = "$"+message + ";A1_A: " + String(A_1A_speed) + ", A1_B: " + String(A_1B_speed)+", B1_A: " + String(B_1A_speed)+", B1_B: " + String(B_1B_speed)+";"+time;
+  //Serial.println(message);
+  //message = "";
+
 }
 
 void go(float l, float f, float b, float r){
@@ -165,15 +184,22 @@ void go(float l, float f, float b, float r){
 
 void setup()
 {
-  Serial.begin(9600);
+
+  pinMode(LED_BUILTIN, OUTPUT);
+
+  Serial.begin(115200);
 
   Serial.println("Serial begin");
-  Serial.flush();
+  
+  for(int i=0;i<10;i++){
+    delay(20);
+    Serial.println(i);
+  }
 
-  Bluetooth.begin(9600);
+  //Bluetooth.begin(115200);
 
-  Serial.println("Bluetooth begin");
-  Serial.flush();
+  // Serial.println("Bluetooth begin");
+  // Serial.flush();
 
   //pinMode(LED, OUTPUT);
   pinMode(A_1A, OUTPUT);
@@ -201,7 +227,36 @@ void setup()
 
 void loop()
 {
-  if (Serial.available())
+
+  if (stringComplete) {
+    Serial.println("String:"+inputString);
+
+
+    
+    int ind1, ind2, ind3, ind4;
+    float l, r, d;
+    String t;
+    ind1 = inputString.indexOf(',');
+    l = inputString.substring(0, ind1).toFloat();
+    ind2 = inputString.indexOf(',', ind1+1 ); 
+    r = inputString.substring(ind1+1, ind2+1).toFloat();
+    ind3 = inputString.indexOf(',', ind2+1 );
+    d = inputString.substring(ind2+1, ind3+1).toFloat();
+    ind4 = inputString.indexOf(';');
+    t = inputString.substring(ind3+1, ind4);
+    //Serial.println("$"+String(l)+","+String(r)+","+String(d)+","+t);
+
+    //message = message + String(l)+","+String(r)+","+String(d)+","+t;
+    go2(l, r, d, t);
+    
+    
+    // clear the string:
+    inputString = "";
+    stringComplete = false;
+    
+  }
+
+  /*if (Serial.available())
   {
     //считываем данные в виде l,t,b,r;
     // String l = Serial.readStringUntil(',');
@@ -229,6 +284,7 @@ void loop()
     if (isDigit(left.charAt(0)) && isDigit(right.charAt(0)) && isDigit(dir.charAt(0)))
     {
       Serial.println("$"+left+","+right+","+dir+","+time);
+      //Serial.flush();
       go2(left.toInt(), right.toInt(), dir.toInt(), time);
     }
 
@@ -268,7 +324,24 @@ void loop()
     {
       goRight(150);
     } */
-  }
+  /*}*/
+
 }
-
-
+void serialEvent() 
+  {
+    while (Serial.available()) {
+      // get the new byte:
+      char inChar = (char)Serial.read();
+      // add it to the inputString:
+      // if the incoming character is a newline, set a flag so the main loop can
+      // do something about it:
+      if (inChar == '\n') {
+       stringComplete = true;
+      } else {
+          inputString += inChar;
+          //Serial.println(inputString);
+      }
+      
+      
+  }
+  }
