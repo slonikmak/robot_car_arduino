@@ -191,10 +191,10 @@ void setup()
 
   Serial.println("Serial begin");
   
-  for(int i=0;i<10;i++){
-    delay(20);
-    Serial.println(i);
-  }
+  // for(int i=0;i<10;i++){
+  //   delay(20);
+  //   Serial.println(i);
+  // }
 
   //Bluetooth.begin(115200);
 
