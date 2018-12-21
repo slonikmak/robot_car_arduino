@@ -117,7 +117,7 @@ void go2(int left, int right, int dir, String time){
     analogWrite(A_1B, 0);
     analogWrite(B_1B, 0);
   }
-  //Serial.println("$A1_A: " + String(A_1A_speed) + ", A1_B: " + String(A_1B_speed)+", B1_A: " + String(B_1A_speed)+", B1_B: " + String(B_1B_speed)+","+time);
+  Serial.println("$A1_A: " + String(A_1A_speed) + ", A1_B: " + String(A_1B_speed)+", B1_A: " + String(B_1A_speed)+", B1_B: " + String(B_1B_speed)+","+time);
   //Serial.flush();
 
   //message = "$"+message + ";A1_A: " + String(A_1A_speed) + ", A1_B: " + String(A_1B_speed)+", B1_A: " + String(B_1A_speed)+", B1_B: " + String(B_1B_speed)+";"+time;
@@ -185,16 +185,26 @@ void go(float l, float f, float b, float r){
 void setup()
 {
 
+  // TCCR1A = TCCR1A & 0xe0 | 1;
+  // TCCR1B = TCCR1B & 0xe0 | 0x0d;
+
+  // TCCR0A = TCCR0A & 0xe0 | 1;
+  // TCCR0B = TCCR0B & 0xe0 | 0x0d;
+
+  // TCCR2A = TCCR2A & 0xe0 | 1;
+  // TCCR2B = TCCR2B & 0xe0 | 0x0d;
+
   pinMode(LED_BUILTIN, OUTPUT);
 
   Serial.begin(115200);
 
   Serial.println("Serial begin");
+
   
-  // for(int i=0;i<10;i++){
-  //   delay(20);
-  //   Serial.println(i);
-  // }
+  for(int i=0;i<10;i++){
+    delay(20);
+    Serial.println("lkl hiuuop poiiuggc ggtuio;");
+  }
 
   //Bluetooth.begin(115200);
 
@@ -229,7 +239,7 @@ void loop()
 {
 
   if (stringComplete) {
-    Serial.println("String:"+inputString);
+    //Serial.println("String:"+inputString);
 
 
     
